@@ -70,8 +70,10 @@ function withHTMLSubtitles(Video) {
         };
 
         function renderSubtitles() {
-            while (subtitlesElement.childNodes.length > 2) {
-                subtitlesElement.removeChild(subtitlesElement.lastChild);
+            while (subtitlesElement.querySelectorAll('.dual-subtitles-1').length > 0) {
+                subtitlesElement.querySelectorAll('.dual-subtitles-1').forEach((child) => {
+                    subtitlesElement.removeChild(child)
+                })
             }
 
             if (cuesByTime === null || videoState.time === null || !isFinite(videoState.time)) {
@@ -81,6 +83,7 @@ function withHTMLSubtitles(Video) {
             subtitlesElement.style.bottom = offset + '%';
             subtitlesElement.style.opacity = opacity;
             subtitlesRenderer.render(cuesByTime, videoState.time - delay).forEach(function(cueNode) {
+                cueNode.className = 'dual-subtitles-1'
                 cueNode.style.display = 'inline-block';
                 cueNode.style.padding = '0.2em';
                 cueNode.style.whiteSpace = 'pre-wrap';
@@ -88,13 +91,18 @@ function withHTMLSubtitles(Video) {
                 cueNode.style.color = textColor;
                 cueNode.style.backgroundColor = backgroundColor;
                 cueNode.style.textShadow = '1px 1px 0.1em ' + outlineColor;
-                subtitlesElement.appendChild(cueNode);
-                subtitlesElement.appendChild(document.createElement('br'));
+                const br = document.createElement('br')
+                br.className = 'dual-subtitles-1'
+
+                subtitlesElement.appendChild(cueNode, subtitlesElement.firstChild);
+                subtitlesElement.appendChild(br);
             });
         }
         function renderSecondSubtitles() {
-            while (subtitlesElement.childNodes.length > 2) {
-                subtitlesElement.removeChild(subtitlesElement.firstChild);
+            while (subtitlesElement.querySelectorAll('.dual-subtitles-2').length > 0) {
+                subtitlesElement.querySelectorAll('.dual-subtitles-2').forEach((child) => {
+                    subtitlesElement.removeChild(child)
+                })
             }
 
             if (secondCuesByTime === null || videoState.time === null || !isFinite(videoState.time)) {
@@ -104,6 +112,7 @@ function withHTMLSubtitles(Video) {
             subtitlesElement.style.bottom = offset + '%';
             subtitlesElement.style.opacity = opacity;
             subtitlesRenderer.render(secondCuesByTime, videoState.time - delay).forEach(function(cueNode) {
+                cueNode.className = 'dual-subtitles-2'
                 cueNode.style.display = 'inline-block';
                 cueNode.style.padding = '0.2em';
                 cueNode.style.whiteSpace = 'pre-wrap';
@@ -111,8 +120,11 @@ function withHTMLSubtitles(Video) {
                 cueNode.style.color = textColor;
                 cueNode.style.backgroundColor = backgroundColor;
                 cueNode.style.textShadow = '1px 1px 0.1em ' + outlineColor;
-                subtitlesElement.insertBefore(document.createElement('br'), subtitlesElement.firstChild);
-                subtitlesElement.insertBefore(cueNode, subtitlesElement.firstChild);
+                const br = document.createElement('br')
+                br.className = 'dual-subtitles-2'
+
+                subtitlesElement.appendChild(br);
+                subtitlesElement.insertBefore(cueNode, br);
             });
         }
         function onVideoError(error) {
@@ -125,8 +137,10 @@ function withHTMLSubtitles(Video) {
             switch (propName) {
                 case 'time': {
                     videoState.time = propValue;
-                    renderSubtitles();
-                    renderSecondSubtitles();
+                    Promise.all([
+                        renderSubtitles(),
+                        renderSecondSubtitles()
+                    ])
                     break;
                 }
             }
