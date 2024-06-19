@@ -1,7 +1,7 @@
 // Copyright (C) 2017-2023 Smart code 203358507
 
 const React = require('react');
-const Video = require('@stremio/stremio-video');
+const Video = require('../../modules/stremio-video');
 const EventEmitter = require('eventemitter3');
 
 const events = new EventEmitter();
@@ -33,6 +33,7 @@ const useVideo = () => {
         subtitlesOutlineColor: null,
         extraSubtitlesTracks: [],
         selectedExtraSubtitlesTrackId: null,
+        selectedSecondSubtitlesTrackId: null,
         extraSubtitlesSize: null,
         extraSubtitlesDelay: null,
         extraSubtitlesOffset: null,
@@ -99,6 +100,10 @@ const useVideo = () => {
         events.emit('extraSubtitlesTrackLoaded', track);
     };
 
+    const onSecondSubtitlesTrackLoaded = (track) => {
+        events.emit('secondSubtitlesTrackLoaded', track);
+    };
+
     const onPropChanged = (name, value) => {
         setState((state) => ({
             ...state,
@@ -125,6 +130,7 @@ const useVideo = () => {
         video.current.on('implementationChanged', onImplementationChanged);
         video.current.on('subtitlesTrackLoaded', onSubtitlesTrackLoaded);
         video.current.on('extraSubtitlesTrackLoaded', onExtraSubtitlesTrackLoaded);
+        video.current.on('secondSubtitlesTrackLoaded', onSecondSubtitlesTrackLoaded)
 
         return () => video.current.destroy();
     }, []);

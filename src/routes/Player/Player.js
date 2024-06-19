@@ -134,6 +134,15 @@ const Player = ({ urlParams, queryParams }) => {
         });
     }, []);
 
+    const onSecondSubtitlesTrackLoaded = React.useCallback((track) => {
+        toast.show({
+            type: 'success',
+            title: t('PLAYER_SUBTITLES_LOADED'),
+            message: track.exclusive ? t('PLAYER_SUBTITLES_LOADED_EXCLUSIVE') : t('PLAYER_SUBTITLES_LOADED_ORIGIN', { origin: track.origin }),
+            timeout: 3000
+        });
+    }, []);
+
     const onPlayRequested = React.useCallback(() => {
         video.setProp('paused', false);
     }, []);
@@ -173,6 +182,11 @@ const Player = ({ urlParams, queryParams }) => {
     const onExtraSubtitlesTrackSelected = React.useCallback((id) => {
         video.setProp('selectedSubtitlesTrackId', null);
         video.setProp('selectedExtraSubtitlesTrackId', id);
+    }, []);
+
+    // TODO: I don't know
+    const onSecondSubtitlesTrackSelected = React.useCallback((id) => {
+        video.setProp('selectedSecondSubtitlesTrackId', id);
     }, []);
 
     const onAudioTrackSelected = React.useCallback((id) => {
@@ -579,6 +593,7 @@ const Player = ({ urlParams, queryParams }) => {
         video.events.on('ended', onEnded);
         video.events.on('subtitlesTrackLoaded', onSubtitlesTrackLoaded);
         video.events.on('extraSubtitlesTrackLoaded', onExtraSubtitlesTrackLoaded);
+        video.events.on('secondTrackLoaded', onSecondSubtitlesTrackLoaded);
         video.events.on('implementationChanged', onImplementationChanged);
 
         return () => {
@@ -586,6 +601,7 @@ const Player = ({ urlParams, queryParams }) => {
             video.events.off('ended', onEnded);
             video.events.off('subtitlesTrackLoaded', onSubtitlesTrackLoaded);
             video.events.off('extraSubtitlesTrackLoaded', onExtraSubtitlesTrackLoaded);
+            video.events.off('secondTrackLoaded', onSecondSubtitlesTrackLoaded);
             video.events.off('implementationChanged', onImplementationChanged);
         };
     }, []);
@@ -597,7 +613,6 @@ const Player = ({ urlParams, queryParams }) => {
             onPauseRequestedDebounced.cancel();
         };
     }, []);
-
     return (
         <div className={classnames(styles['player-container'], { [styles['overlayHidden']]: overlayHidden })}
             onMouseDown={onContainerMouseDown}
@@ -732,6 +747,9 @@ const Player = ({ urlParams, queryParams }) => {
                         onExtraSubtitlesOffsetChanged={onSubtitlesOffsetChanged}
                         onExtraSubtitlesDelayChanged={onExtraSubtitlesDelayChanged}
                         onExtraSubtitlesSizeChanged={onSubtitlesSizeChanged}
+
+                        selectedSecondSubtitlesTrackId={video.state.selectedSecondSubtitlesTrackId}
+                        onSecondSubtitlesTrackSelected={onSecondSubtitlesTrackSelected}
                     />
                     :
                     null
