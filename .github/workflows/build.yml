@@ -17,10 +17,3 @@ jobs:
         run: npm run build
       - name: Test
         run: npm test
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
-          destination_dir: ${{ github.ref_name }}
-          allow_empty_commit: true
